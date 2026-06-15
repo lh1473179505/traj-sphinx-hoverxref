@@ -58,6 +58,9 @@ def copy_asset_files(app, exception):
     Assets that are templates (ends with ``_t``) are previously rendered using
     using all the configs starting with ``hoverxref_`` as a context.
     """
+    if app.builder.format != 'html':
+        return
+
     if exception is None:  # build succeeded
 
         context = {}

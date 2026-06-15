@@ -39,6 +39,32 @@ def test_dont_fail_non_html_builder(app, status, warning):
 
 @pytest.mark.sphinx(
     srcdir=srcdir,
+    buildername='latex',
+    confoverrides={
+        'hoverxref_auto_ref': True,
+    },
+)
+def test_copy_assets_skipped_for_non_html_builder(app, status, warning):
+    """Static asset files must not be copied for non-HTML builders."""
+    app.build()
+    assert not (app.outdir / '_static' / 'js' / 'hoverxref.js').exists()
+    assert not (app.outdir / '_static' / 'js' / 'micromodal.min.js').exists()
+
+
+@pytest.mark.sphinx(
+    srcdir=srcdir,
+    confoverrides={
+        'hoverxref_auto_ref': True,
+    },
+)
+def test_copy_assets_present_for_html_builder(app, status, warning):
+    """Static asset files must be copied for the HTML builder."""
+    app.build()
+    assert (app.outdir / '_static' / 'js' / 'hoverxref.js').exists()
+
+
+@pytest.mark.sphinx(
+    srcdir=srcdir,
     confoverrides={
         'hoverxref_domains': ['py'],
         'hoverxref_intersphinx': ['python'],
