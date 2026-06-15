@@ -10,6 +10,10 @@ Using ``hoverxref`` (or ``ref`` if ``hoverxref_auto_ref=True``) should add an ``
 
 :hoverxref:`This a :hoverxref: to Chapter I, Section I <Section I>`.
 
+:hoverxreftooltip:`This a :hoverxreftooltip: to Chapter I, Section I <Section I>`.
+
+:hoverxrefmodal:`This a :hoverxrefmodal: to Chapter I, Section I <Section I>`.
+
 .. _example-reference:
 
 Example Reference

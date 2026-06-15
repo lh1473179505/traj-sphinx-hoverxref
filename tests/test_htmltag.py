@@ -1,4 +1,5 @@
 import re
+import re
 import sys
 import pytest
 import sphinx
@@ -365,3 +366,43 @@ def test_intersphinx_all_mappings(app, status, warning):
 
     for chunk in chunks_regex:
         assert re.search(chunk, content)
+
+
+@pytest.mark.sphinx(
+    srcdir=srcdir,
+    confoverrides={
+        'hoverxref_default_type': 'modal',
+    },
+)
+def test_forced_tooltip_modal_roles_ignore_default_type(app, status, warning):
+    """:hoverxreftooltip: and :hoverxrefmodal: must always produce their forced
+    type_class regardless of hoverxref_default_type setting."""
+    app.build()
+    path = app.outdir / 'index.html'
+    assert path.exists() is True
+    content = open(path).read()
+
+    # :hoverxref: should respect hoverxref_default_type='modal'
+    assert 'hxr-modal' in content and \
+        'This a :hoverxref: to Chapter I, Section I' in content
+
+    # :hoverxreftooltip: must ALWAYS produce hxr-tooltip, ignoring default_type
+    tooltip_opening_tag = 'class="hxr-hoverxref hxr-tooltip reference internal"'
+    tooltip_text = 'This a :hoverxreftooltip: to Chapter I, Section I'
+    assert tooltip_opening_tag in content, \
+        ':hoverxreftooltip: link must have hxr-tooltip class'
+    assert tooltip_text in content, \
+        ':hoverxreftooltip: link text not found in output'
+
+    # Verify the tooltip opening tag is NOT hxr-modal
+    tooltip_modal_tag = 'class="hxr-hoverxref hxr-modal reference internal" href="chapter-i.html#section-i"><span class="std std-ref">This a :hoverxreftooltip:'
+    assert tooltip_modal_tag not in content, \
+        ':hoverxreftooltip: must not have hxr-modal class even when default_type=modal'
+
+    # :hoverxrefmodal: must ALWAYS produce hxr-modal
+    modal_opening_tag = 'class="hxr-hoverxref hxr-modal reference internal"'
+    modal_text = 'This a :hoverxrefmodal: to Chapter I, Section I'
+    assert modal_opening_tag in content, \
+        ':hoverxrefmodal: link must have hxr-modal class'
+    assert modal_text in content, \
+        ':hoverxrefmodal: link text not found in output'
