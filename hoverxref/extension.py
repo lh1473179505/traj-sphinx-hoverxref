@@ -297,11 +297,23 @@ def setup_assets_policy(app, exception):
 
 def deprecated_configs_warning(app, exception):
     """Log warning message if old configs are used."""
-    opt = app.config.values['hoverxref_tooltip_api_host']
-    if app.config.hoverxref_tooltip_api_host != (opt.default if hasattr(opt, "default") else opt[0]):
-        message = '"hoverxref_tooltip_api_host" is deprecated and replaced by "hoverxref_api_host".'
+    old_opt = app.config.values['hoverxref_tooltip_api_host']
+    old_default = old_opt.default if hasattr(old_opt, "default") else old_opt[0]
+    old_changed = app.config.hoverxref_tooltip_api_host != old_default
+
+    new_opt = app.config.values['hoverxref_api_host']
+    new_default = new_opt.default if hasattr(new_opt, "default") else new_opt[0]
+    new_changed = app.config.hoverxref_api_host != new_default
+
+    message = '"hoverxref_tooltip_api_host" is deprecated and replaced by "hoverxref_api_host".'
+
+    if old_changed and not new_changed:
+        # Only old config set by user: warn and migrate value to new config
         logger.warning(message)
         app.config.hoverxref_api_host = app.config.hoverxref_tooltip_api_host
+    elif old_changed and new_changed:
+        # Both set by user: warn but respect the explicit new config value
+        logger.warning(message)
 
 
 
