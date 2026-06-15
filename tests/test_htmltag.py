@@ -321,6 +321,32 @@ def test_intersphinx_python_mapping(app, status, warning):
     srcdir=intersphinxsrc,
     confoverrides={
         'hoverxref_intersphinx': [
+            'python',
+        ],
+    },
+)
+def test_intersphinx_explicit_missing_object_skips_hoverxref(app, status, warning):
+    app.build()
+    path = app.outdir / 'index.html'
+    assert path.exists() is True
+    content = open(path).read()
+
+    # The non-existent object should NOT have hxr-hoverxref;
+    # it renders as a plain <span>, not an <a> link
+    assert '<span class="xref std std-ref">This a :ref: to a non-existent object using intersphinx</span>' in content
+    assert 'hxr-hoverxref' not in content.split('non-existent object')[0].split('\n')[-1]
+
+    # The existing python:tutorial-index link should still have hxr-hoverxref
+    assert re.search(
+        r'<a class="hxr-hoverxref hxr-tooltip reference external" href="https://docs.python.org/3/tutorial/index.html#tutorial-index" title="\(in Python v3.\d\d?\)"><span class="xref std std-ref">This a :ref: to The Python Tutorial using intersphinx</span></a>',
+        content,
+    )
+
+
+@pytest.mark.sphinx(
+    srcdir=intersphinxsrc,
+    confoverrides={
+        'hoverxref_intersphinx': [
             'readthedocs',
             'python',
         ],

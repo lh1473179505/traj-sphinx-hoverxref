@@ -16,5 +16,7 @@ This is an example page.
 
 :py:func:`hoverxref.extension.setup`
 
+:ref:`This a :ref: to a non-existent object using intersphinx <python:this-object-does-not-exist-abc123>`.
+
 Using just the ``default_role = "obj"`` with intersphinx object: `float`.
 See https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-default_role

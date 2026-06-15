@@ -202,10 +202,18 @@ def missing_reference(app, env, node, contnode):
         #   reftype: ref
         #   reftarget: python:datetime.datetime
         #   refexplicit: True
-        inventory_name, _ = target.split(':', 1)
-        if inventory_name in app.config.hoverxref_intersphinx:
-            skip_node = False
-            inventory_name_matched = inventory_name
+        inventory_name, target_name = target.split(':', 1)
+        if inventory_name in app.config.hoverxref_intersphinx and domain:
+            inventories = InventoryAdapter(env)
+            inventory = inventories.named_inventory.get(inventory_name, {})
+            objtypes_for_role = env.get_domain(domain).objtypes_for_role(reftype)
+            if objtypes_for_role:
+                for objtype in objtypes_for_role:
+                    inventory_member = inventory.get(f'{domain}:{objtype}')
+                    if inventory_member and inventory_member.get(target_name) is not None:
+                        skip_node = False
+                        inventory_name_matched = inventory_name
+                        break
 
     # Skip this node completely if the domain is empty (`None` or `''`).
     # I found this happens in weird scenarios.
