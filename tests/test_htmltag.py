@@ -104,6 +104,29 @@ def test_custom_object(app, status, warning):
 
 
 @pytest.mark.sphinx(
+    srcdir=customobjectsrcdir,
+    confoverrides={
+        'hoverxref_auto_ref': True,
+        'hoverxref_roles': [],
+    },
+)
+def test_auto_ref_enables_obj_and_numref(app, status, warning):
+    app.build()
+    path = app.outdir / 'index.html'
+    assert path.exists() is True
+    content = open(path).read()
+
+    chunks = [
+        '<a class="hxr-hoverxref hxr-tooltip reference internal" href="configuration.html#confval-conf-title"><code class="xref std std-confval docutils literal notranslate"><span class="pre">This</span> <span class="pre">is</span> <span class="pre">a</span> <span class="pre">:confval:</span> <span class="pre">to</span> <span class="pre">conf-title</span></code></a>',
+        '<a class="hxr-hoverxref hxr-tooltip reference internal" href="configuration.html#configuration"><span class="std std-ref">This is a :hoverxref: to Configuration document</span></a>',
+        '<a class="hxr-hoverxref hxr-tooltip reference internal" href="code.html#python-code-block"><span class="std std-numref">This is a :numref: to a Python code block (PyExample)</span></a>',
+    ]
+
+    for chunk in chunks:
+        assert chunk in content
+
+
+@pytest.mark.sphinx(
     srcdir=pythondomainsrcdir,
     confoverrides={
         'hoverxref_domains': ['py'],

@@ -122,7 +122,7 @@ class HoverXRefStandardDomainMixin(HoverXRefBaseDomain):
 
         if any([
                 self._is_ignored_ref(env, target),
-                typ not in env.config.hoverxref_roles,
+                not (env.config.hoverxref_auto_ref or typ in env.config.hoverxref_roles),
         ]):
             return refnode
 
@@ -137,7 +137,7 @@ class HoverXRefStandardDomainMixin(HoverXRefBaseDomain):
 
         if any([
                 self._is_ignored_ref(env, target),
-                typ not in env.config.hoverxref_roles,
+                not (env.config.hoverxref_auto_ref or typ in env.config.hoverxref_roles),
         ]):
             return refnode
 
