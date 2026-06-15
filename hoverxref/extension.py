@@ -248,8 +248,12 @@ def missing_reference(app, env, node, contnode):
             hoverxref_type = hoverxref_type.get(reftype)
         hoverxref_type = hoverxref_type or app.config.hoverxref_default_type
 
-        classes = newnode.get('classes')
-        classes.extend([CSS_DEFAULT_CLASS, CSS_CLASSES[hoverxref_type]])
+        classes = list(newnode.get('classes') or [])
+        if CSS_DEFAULT_CLASS not in classes:
+            classes.append(CSS_DEFAULT_CLASS)
+        type_class = CSS_CLASSES[hoverxref_type]
+        if type_class not in classes:
+            classes.append(type_class)
         newnode.replace_attr('classes', classes)
 
     return newnode

@@ -37,6 +37,70 @@ def test_dont_fail_non_html_builder(app, status, warning):
     assert app.builder.format == 'latex'
 
 
+def test_missing_reference_classes_none_safe():
+    """
+    Test ``missing_reference`` does not crash when ``newnode.get('classes')``
+    returns ``None`` and does not duplicate classes when they already exist.
+    """
+    from docutils import nodes
+    from hoverxref.extension import CSS_DEFAULT_CLASS, CSS_CLASSES
+
+    # --- Case 1: classes is None ---
+    app = mock.MagicMock()
+    app.config.hoverxref_intersphinx = ['python']
+    app.config.extensions = ['sphinx.ext.intersphinx']
+    app.config.hoverxref_intersphinx_types = {}
+    app.config.hoverxref_default_type = 'tooltip'
+
+    env = mock.MagicMock()
+
+    node = nodes.reference()
+    node['refdomain'] = 'std'
+    node['reftarget'] = 'python:some-label'
+    node['reftype'] = 'ref'
+
+    contnode = nodes.reference()
+
+    # The newnode returned by sphinx_missing_reference has classes=None
+    newnode_no_classes = nodes.reference()
+    newnode_no_classes.replace_attr('classes', None)
+
+    with mock.patch(
+        'hoverxref.extension.sphinx_missing_reference',
+        return_value=newnode_no_classes,
+    ):
+        result = missing_reference(app, env, node, contnode)
+
+    assert result is not None
+    assert CSS_DEFAULT_CLASS in result['classes']
+    # No duplicates
+    assert result['classes'].count(CSS_DEFAULT_CLASS) == 1
+
+    # --- Case 2: classes already contains hxr-hoverxref ---
+    node2 = nodes.reference()
+    node2['refdomain'] = 'std'
+    node2['reftarget'] = 'python:some-label'
+    node2['reftype'] = 'ref'
+
+    contnode2 = nodes.reference()
+
+    newnode_with_classes = nodes.reference()
+    newnode_with_classes['classes'] = [CSS_DEFAULT_CLASS]
+
+    with mock.patch(
+        'hoverxref.extension.sphinx_missing_reference',
+        return_value=newnode_with_classes,
+    ):
+        result2 = missing_reference(app, env, node2, contnode2)
+
+    assert result2 is not None
+    # Must not duplicate CSS_DEFAULT_CLASS
+    assert result2['classes'].count(CSS_DEFAULT_CLASS) == 1
+    # Type class should still be added once
+    tooltip_class = CSS_CLASSES['tooltip']
+    assert result2['classes'].count(tooltip_class) == 1
+
+
 @pytest.mark.sphinx(
     srcdir=srcdir,
     confoverrides={
