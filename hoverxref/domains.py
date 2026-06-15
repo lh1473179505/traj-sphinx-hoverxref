@@ -115,34 +115,31 @@ class HoverXRefStandardDomainMixin(HoverXRefBaseDomain):
         self._inject_hoverxref_data(env, refnode, typ)
         return refnode
 
+    def _inject_role_hoverxref(self, env, refnode, typ, target):
+        """Inject hoverxref data into *refnode* for role-based references.
+
+        Returns *refnode* unchanged when it is ``None``, the reference is
+        ignored, or the role is not listed in ``hoverxref_roles``.
+        """
+        if refnode is None:
+            return None
+
+        if any([
+                self._is_ignored_ref(env, target),
+                typ not in env.config.hoverxref_roles,
+        ]):
+            return refnode
+
+        self._inject_hoverxref_data(env, refnode, typ)
+        return refnode
+
     def _resolve_obj_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         refnode = super()._resolve_obj_xref(env, fromdocname, builder, typ, target, node, contnode)
-        if refnode is None:
-            return refnode
+        return self._inject_role_hoverxref(env, refnode, typ, target)
 
-        if any([
-                self._is_ignored_ref(env, target),
-                typ not in env.config.hoverxref_roles,
-        ]):
-            return refnode
-
-        self._inject_hoverxref_data(env, refnode, typ)
-        return refnode
-
-    # TODO: combine this method with ``_resolve_obj_xref``
     def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         refnode = super()._resolve_numref_xref(env, fromdocname, builder, typ, target, node, contnode)
-        if refnode is None:
-            return refnode
-
-        if any([
-                self._is_ignored_ref(env, target),
-                typ not in env.config.hoverxref_roles,
-        ]):
-            return refnode
-
-        self._inject_hoverxref_data(env, refnode, typ)
-        return refnode
+        return self._inject_role_hoverxref(env, refnode, typ, target)
 
 
 class HoverXRefBibtexDomainMixin(HoverXRefBaseDomain):

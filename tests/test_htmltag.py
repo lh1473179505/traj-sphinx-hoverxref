@@ -104,6 +104,27 @@ def test_custom_object(app, status, warning):
 
 
 @pytest.mark.sphinx(
+    srcdir=customobjectsrcdir,
+    confoverrides={},
+)
+def test_obj_numref_hoverxref_classes_regression(app, status, warning):
+    """Regression: _inject_role_hoverxref helper produces identical classes."""
+    app.build()
+    path = app.outdir / 'index.html'
+    assert path.exists() is True
+    content = open(path).read()
+
+    # :confval: link must have hxr-hoverxref hxr-tooltip (obj xref path)
+    assert '<a class="hxr-hoverxref hxr-tooltip reference internal" href="configuration.html#confval-conf-title">' in content
+
+    # :numref: link must have hxr-hoverxref hxr-tooltip (numref xref path)
+    assert '<a class="hxr-hoverxref hxr-tooltip reference internal" href="code.html#python-code-block">' in content
+
+    # :hoverxref: dedicated role behaviour unchanged
+    assert '<a class="hxr-hoverxref hxr-tooltip reference internal" href="configuration.html#configuration">' in content
+
+
+@pytest.mark.sphinx(
     srcdir=pythondomainsrcdir,
     confoverrides={
         'hoverxref_domains': ['py'],
