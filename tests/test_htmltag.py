@@ -178,6 +178,33 @@ def test_bibtex_domain(app, status, warning):
         assert chunk in content
 
 
+@pytest.mark.skipif(sys.version_info >= (3, 12), reason="sphinxcontrib.bibtex is not compatible with Python 3.12")
+@pytest.mark.sphinx(
+    srcdir=bibtexdomainsrcdir,
+    confoverrides={
+        'hoverxref_auto_ref': True,
+        'hoverxref_domains': [],
+    },
+)
+def test_bibtex_auto_ref_without_cite_domain(app, status, warning):
+    """
+    When ``hoverxref_auto_ref=True`` is set, ``:cite:`` references should get
+    the ``hxr-hoverxref hxr-tooltip`` classes even if ``'cite'`` is NOT listed
+    in ``hoverxref_domains``.
+    """
+    app.build()
+    path = app.outdir / 'index.html'
+    assert path.exists() is True
+    content = open(path).read()
+
+    chunks = [
+        '<a class="hxr-hoverxref hxr-tooltip reference internal" href="#id4" title="Edward Nelson. Radically Elementary Probability Theory. Princeton University Press, 1987.">Nel87</a>',
+    ]
+
+    for chunk in chunks:
+        assert chunk in content
+
+
 @pytest.mark.sphinx(
     srcdir=srcdir,
     confoverrides={

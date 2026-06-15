@@ -132,7 +132,7 @@ def setup_domains(app, config):
         )
         app.add_domain(domain, override=True)
 
-    if 'cite' in app.config.hoverxref_domains:
+    if 'cite' in app.config.hoverxref_domains or app.config.hoverxref_auto_ref:
         domain = types.new_class(
             'HoverXRefBibtexDomain',
             (
