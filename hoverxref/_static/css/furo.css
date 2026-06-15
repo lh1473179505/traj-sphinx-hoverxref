@@ -1,0 +1,5 @@
+#micromodal .modal__container {
+  max-width: min(90vw, 48rem);
+  font-size: var(--font-size--normal, 1rem);
+  line-height: var(--line-height--normal, 1.5);
+}

@@ -277,6 +277,10 @@ def setup_theme(app, exception):
     elif theme == 'sphinx_rtd_theme':
         if app.config.hoverxref_modal_class == default:
             css_file = 'css/sphinx_rtd_theme.css'
+    elif theme == 'furo':
+        if app.config.hoverxref_modal_class == default:
+            app.config.hoverxref_modal_class = 'body'
+            css_file = 'css/furo.css'
 
     if css_file:
         app.add_css_file(css_file)

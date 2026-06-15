@@ -40,6 +40,28 @@ def test_dont_fail_non_html_builder(app, status, warning):
 @pytest.mark.sphinx(
     srcdir=srcdir,
     confoverrides={
+        'html_theme': 'furo',
+        'extensions': [
+            'sphinx.ext.autosectionlabel',
+            'hoverxref.extension',
+        ],
+    },
+)
+def test_setup_theme_furo(app, status, warning):
+    """Test that Furo theme auto-configures hoverxref_modal_class and copies furo.css."""
+    app.build()
+    assert app.config.hoverxref_modal_class == 'body'
+
+    css_path = app.outdir / '_static' / 'css' / 'furo.css'
+    assert css_path.exists()
+
+    index_html = (app.outdir / 'index.html').read_text(encoding='utf-8')
+    assert 'furo.css' in index_html
+
+
+@pytest.mark.sphinx(
+    srcdir=srcdir,
+    confoverrides={
         'hoverxref_domains': ['py'],
         'hoverxref_intersphinx': ['python'],
         'hoverxref_auto_ref': True,
