@@ -14,7 +14,7 @@ class HoverXRefBaseDomain:
     )
 
     def _inject_hoverxref_data(self, env, refnode, typ):
-        from .extension import CSS_CLASSES, CSS_DEFAULT_CLASS
+        from .extension import CSS_CLASSES, CSS_DEFAULT_CLASS, _resolve_type
 
         classes = [CSS_DEFAULT_CLASS]
         type_class = None
@@ -34,6 +34,9 @@ class HoverXRefBaseDomain:
                     default,
                     typ,
                 )
+
+        # Validate the resolved type against CSS_CLASSES; fall back if invalid
+        type_class = _resolve_type(env.config, type_class)
 
         # Examples: hxr-tooltip, hxr-modal
         classes.append(CSS_CLASSES[type_class])

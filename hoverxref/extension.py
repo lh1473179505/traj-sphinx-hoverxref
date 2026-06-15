@@ -26,6 +26,41 @@ CSS_CLASSES = {
     'modal': f'{CSS_CLASS_PREFIX}modal',
 }
 
+
+def _resolve_type(config, type_value):
+    """
+    Validate and resolve a hoverxref type against ``CSS_CLASSES``.
+
+    If ``type_value`` is a valid key in ``CSS_CLASSES`` it is returned as-is.
+    Otherwise a warning is logged and the function falls back to
+    ``hoverxref_default_type``.  If that default is itself invalid, it falls
+    back to ``'tooltip'`` so the build never crashes with a ``KeyError``.
+    """
+    if type_value in CSS_CLASSES:
+        return type_value
+
+    default = config.hoverxref_default_type
+    if default in CSS_CLASSES:
+        fallback = default
+    else:
+        fallback = 'tooltip'
+        logger.warning(
+            'hoverxref_default_type=%r is not a valid type (%s). '
+            'Falling back to %r.',
+            default,
+            ', '.join(sorted(CSS_CLASSES)),
+            fallback,
+        )
+
+    logger.warning(
+        'hoverxref type=%r is not a valid type (%s). '
+        'Falling back to %r.',
+        type_value,
+        ', '.join(sorted(CSS_CLASSES)),
+        fallback,
+    )
+    return fallback
+
 HOVERXREF_ASSETS_FILES = [
     'js/hoverxref.js_t',  # ``_t`` tells Sphinx this is a template
 ]
@@ -246,7 +281,10 @@ def missing_reference(app, env, node, contnode):
         if isinstance(hoverxref_type, dict):
             # Specific style for a particular reftype
             hoverxref_type = hoverxref_type.get(reftype)
-        hoverxref_type = hoverxref_type or app.config.hoverxref_default_type
+        hoverxref_type = _resolve_type(
+            app.config,
+            hoverxref_type or app.config.hoverxref_default_type,
+        )
 
         classes = newnode.get('classes')
         classes.extend([CSS_DEFAULT_CLASS, CSS_CLASSES[hoverxref_type]])
