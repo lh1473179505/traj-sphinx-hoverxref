@@ -28,12 +28,17 @@ class HoverXRefBaseDomain:
             if not type_class:
                 default = env.config.hoverxref_default_type
                 type_class = default
-                logger.info(
-                    'Using default style (%s) for unknown typ (%s). '
-                    'Define it in hoverxref_role_types.',
-                    default,
-                    typ,
-                )
+                # Only log for truly unknown/custom types. Built-in
+                # hoverxref types (hoverxref, hoverxreftooltip,
+                # hoverxrefmodal) and plain ``ref`` (from auto_ref) are
+                # expected and should be silent to avoid log spam.
+                if typ not in self.hoverxref_types and typ != 'ref':
+                    logger.info(
+                        'Using default style (%s) for unknown typ (%s). '
+                        'Define it in hoverxref_role_types.',
+                        default,
+                        typ,
+                    )
 
         # Examples: hxr-tooltip, hxr-modal
         classes.append(CSS_CLASSES[type_class])

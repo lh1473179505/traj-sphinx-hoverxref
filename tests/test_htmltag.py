@@ -1,5 +1,6 @@
 import re
 import sys
+import logging
 import pytest
 import sphinx
 import textwrap
@@ -365,3 +366,18 @@ def test_intersphinx_all_mappings(app, status, warning):
 
     for chunk in chunks_regex:
         assert re.search(chunk, content)
+
+
+@pytest.mark.sphinx(
+    srcdir=srcdir,
+)
+def test_hoverxref_default_typ_no_spurious_info_log(app, status, warning, caplog):
+    """Built-in hoverxref/ref typs must not produce 'unknown typ' INFO spam."""
+    with caplog.at_level(logging.INFO):
+        app.build()
+
+    messages = [record.getMessage() for record in caplog.records]
+    for message in messages:
+        assert 'unknown typ (hoverxref)' not in message, (
+            f"Unexpected 'unknown typ (hoverxref)' log found: {message}"
+        )
