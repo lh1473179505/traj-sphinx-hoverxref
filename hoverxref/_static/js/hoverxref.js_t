@@ -160,6 +160,7 @@ $(document).ready(function() {
     });
     {% else %}
     $('.{{ hoverxref_css_class_prefix }}hoverxref.external').each(function () { $(this).removeAttr('title') });
+    $('.{{ hoverxref_css_class_prefix }}hoverxref.{{ hoverxref_css_class_prefix }}tooltip').each(function () { $(this).removeAttr('title') });
     addTooltip(
         $('.{{ hoverxref_css_class_prefix }}hoverxref.{{ hoverxref_css_class_prefix }}tooltip')
     )
